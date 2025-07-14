@@ -28,9 +28,7 @@ function enableSearchMode(on) {
 function searchEntry(entry) {
   const li = document.createElement("li");
 
-  const div = document.createElement("div");
-  div.textContent = entry;
-  li.appendChild(div);
+  li.textContent = entry;
 
   const button = document.createElement("button");
   button.textContent = "Add";
