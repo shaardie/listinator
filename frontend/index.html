@@ -7,14 +7,16 @@
     <script src="static/main.js"></script>
   </head>
   <body>
-    <input
-      id="search"
-      type="search"
-      autocomplete="off"
-      placeholder="Search"
-      aria-label="Search"
-      onkeyup="search()"
-    />
+    <div class="search">
+      <input
+        id="searchInput"
+        type="search"
+        autocomplete="off"
+        placeholder="Search"
+        onkeyup="search()"
+      />
+      <button>+</button>
+    </div>
     <ul id="searchlist" class="invisible"></ul>
     <ul id="list"></ul>
   </body>

@@ -23,5 +23,5 @@ func main() {
 	s := server.New(db)
 	s.SetupRoutes(e)
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start("0.0.0.0:8080"))
 }

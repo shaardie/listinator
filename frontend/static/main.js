@@ -1,5 +1,5 @@
 function search() {
-  const v = document.getElementById("search").value;
+  const v = document.getElementById("searchInput").value;
   const searchlist = document.getElementById("searchlist");
   const list = document.getElementById("list");
   if (v === "") {
@@ -31,7 +31,7 @@ function searchEntry(entry) {
   li.textContent = entry;
 
   const button = document.createElement("button");
-  button.textContent = "Add";
+  button.textContent = "+";
   button.onclick = async () => {
     await addEntry(entry);
     const s = document.getElementById("search");
