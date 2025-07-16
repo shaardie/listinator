@@ -1,5 +1,4 @@
 import { searchEntry, createEntry } from "./components.js";
-import { getEntries } from "./api.js";
 
 function search() {
   const v = document.getElementById("searchInput").value;
@@ -29,14 +28,33 @@ function enableSearchMode(on) {
 }
 
 async function renderList() {
-  const l = document.getElementById("list");
-  l.innerHTML = "";
-  const entries = await getEntries();
-  entries.forEach((entry) => {
-    l.appendChild(createEntry(entry));
-  });
+  fetch("/api/v1/entries")
+    .then((response) => response.json())
+    .then((json) => {
+      const l = document.getElementById("list");
+      nodes = json.map((x) => createEntry(x));
+      l.replaceChildren(l);
+    });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   await renderList();
 });
+
+export function addEntry() {
+  const name = document.getElementById("searchInput").value;
+  fetch("/api/v1/entries", {
+    method: "POST",
+    body: JSON.stringify({
+      Name: name,
+      Number: 1,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((_) => {
+      renderList();
+    });
+}
