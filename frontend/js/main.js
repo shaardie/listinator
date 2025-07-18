@@ -1,60 +1,78 @@
-import { searchEntry, createEntry } from "./components.js";
+function createEntry(entry) {
+  const li = document.createElement("li");
 
-function search() {
-  const v = document.getElementById("searchInput").value;
-  const searchlist = document.getElementById("searchlist");
-  const list = document.getElementById("list");
-  if (v === "") {
-    enableSearchMode(true);
-    return;
-  }
-  list.classList.add("invisible");
-  searchlist.classList.remove("invisible");
-  searchlist.innerHTML = "";
-  searchlist.appendChild(searchEntry(v));
+  const divLeft = document.createElement("div");
+  divLeft.textContent = entry.Name;
+  li.appendChild(divLeft);
+
+  const divRight = document.createElement("div");
+  divRight.classList.add("entryAttributes");
+
+  const input = document.createElement("input");
+  input.value = entry.Number;
+  input.type = "text";
+  divRight.appendChild(input);
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  divRight.appendChild(checkbox);
+
+  li.appendChild(divRight);
+  return li;
 }
 
-function enableSearchMode(on) {
-  if (on) {
-    list.classList.add("invisible");
-    searchlist.classList.remove("invisible");
-    searchlist.innerHTML = "";
-    return;
-  }
-
-  list.classList.remove("invisible");
-  searchlist.classList.add("invisible");
-  list.innerHTML = "";
-}
-
-async function renderList() {
+function renderList(filter = "") {
   fetch("/api/v1/entries")
     .then((response) => response.json())
     .then((json) => {
       const l = document.getElementById("list");
-      nodes = json.map((x) => createEntry(x));
-      l.replaceChildren(l);
+      l.innerHTML = "";
+      json.forEach((entry) => {
+        if (entry.Name.toLowerCase().includes(filter.toLowerCase())) {
+          l.appendChild(createEntry(entry));
+        }
+      });
     });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await renderList();
-});
+  // render list on start
+  renderList();
 
-export function addEntry() {
-  const name = document.getElementById("searchInput").value;
-  fetch("/api/v1/entries", {
-    method: "POST",
-    body: JSON.stringify({
-      Name: name,
-      Number: 1,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.json())
-    .then((_) => {
-      renderList();
+  // on Enter in searchInput trigger button
+  document
+    .getElementById("searchInput")
+    .addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("addButton").click();
+      }
     });
-}
+
+  // trigger re-rendering of the list on search input changes
+  document.getElementById("searchInput").addEventListener("keyup", () => {
+    const v = document.getElementById("searchInput").value;
+    renderList(v);
+  });
+
+  // add entry on add button push
+  document.getElementById("addButton").addEventListener("click", () => {
+    const input = document.getElementById("searchInput");
+    const name = input.value;
+    input.value = "";
+    fetch("/api/v1/entries", {
+      method: "POST",
+      body: JSON.stringify({
+        Name: name,
+        Number: 1,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((_) => {
+        renderList();
+      });
+  });
+});
