@@ -1,10 +1,50 @@
+function createBoughtEntry(entry) {
+  const li = document.createElement("li");
+  li.id = entry.ID;
+  li.textContent = entry.Name;
+
+  const divRight = document.createElement("div");
+  divRight.classList.add("entryAttributes");
+
+  const button = document.createElement("button");
+  button.textContent = "Add";
+  button.addEventListener("click", () => {
+    fetch(`/api/v1/entries/${entry.ID}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        Name: entry.Name,
+        Number: 1,
+        Bought: false,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`failed to sync with server, ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        document.getElementById(json.ID)?.remove();
+        const buyList = document.getElementById("buyList");
+        buyList.prepend(createBuyEntry(json));
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("error reaching server, best way to fix this is to reload");
+      });
+  });
+  divRight.appendChild(button);
+
+  li.appendChild(divRight);
+  return li;
+}
 function createBuyEntry(entry) {
   const li = document.createElement("li");
   li.id = entry.ID;
-
-  const divLeft = document.createElement("div");
-  divLeft.textContent = entry.Name;
-  li.appendChild(divLeft);
+  li.textContent = entry.Name;
 
   const divRight = document.createElement("div");
   divRight.classList.add("entryAttributes");
@@ -35,10 +75,9 @@ function createBuyEntry(entry) {
         return response.json();
       })
       .then((json) => {
-        // TODO: Add new element
         document.getElementById(json.ID)?.remove();
         const boughtList = document.getElementById("boughtList");
-        boughtList.prepend(createBuyEntry(json));
+        boughtList.prepend(createBoughtEntry(json));
       })
       .catch((error) => {
         console.log(error);
@@ -51,19 +90,36 @@ function createBuyEntry(entry) {
   return li;
 }
 
-// function renderList(filter = "") {
-//   fetch("/api/v1/entries")
-//     .then((response) => response.json())
-//     .then((json) => {
-//       const l = document.getElementById("list");
-//       l.innerHTML = "";
-//       json.forEach((entry) => {
-//         if (entry.Name.toLowerCase().includes(filter.toLowerCase())) {
-//           l.appendChild(createEntry(entry));
-//         }
-//       });
-//     });
-// }
+function resetFilterEntries() {
+  const buyList = document.getElementById("buyList");
+  const boughtList = document.getElementById("boughList");
+  buyList.childNodes.forEach((li) => {
+    li.classList.remove("invisible");
+  });
+  boughtList.childNodes.forEach((li) => {
+    li.classList.remove("invisible");
+  });
+}
+
+function filterEntries(filter) {
+  filter = filter.toLowerCase();
+  const buyList = document.getElementById("buyList");
+  const boughtList = document.getElementById("boughtList");
+  buyList.childNodes.forEach((li) => {
+    if (li.textContent.toLowerCase().includes(filter)) {
+      li.classList.remove("invisible");
+    } else {
+      li.classList.add("invisible");
+    }
+  });
+  boughtList.childNodes.forEach((li) => {
+    if (li.textContent.toLowerCase().includes(filter)) {
+      li.classList.remove("invisible");
+    } else {
+      li.classList.add("invisible");
+    }
+  });
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   // render list on start
@@ -81,13 +137,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       boughtList.innerText = "";
       json.forEach((entry) => {
         if (entry.Bought) {
-          boughtList.append(createBuyEntry(entry));
+          boughtList.append(createBoughtEntry(entry));
         } else {
           buyList.append(createBuyEntry(entry));
         }
       });
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log(error);
       alert("error reaching server, best way to fix this is to reload");
     });
 
@@ -102,16 +159,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
   // trigger re-rendering of the list on search input changes
-  // document.getElementById("searchInput").addEventListener("keyup", () => {
-  //   const v = document.getElementById("searchInput").value;
-  //   renderList(v);
-  // });
+  document.getElementById("searchInput").addEventListener("keyup", () => {
+    filterEntries(document.getElementById("searchInput")?.value);
+  });
 
   // add entry on add button push
   document.getElementById("addButton").addEventListener("click", () => {
     const input = document.getElementById("searchInput");
     const name = input.value;
     input.value = "";
+    resetFilterEntries();
     fetch("/api/v1/entries", {
       method: "POST",
       body: JSON.stringify({
@@ -129,8 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return response.json();
       })
       .then((json) => {
-        // TODO: Add new element
-        console.log(json);
         const list = document.getElementById("buyList");
         list.prepend(createBuyEntry(json));
       })
