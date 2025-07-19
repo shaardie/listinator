@@ -92,7 +92,7 @@ function createBuyEntry(entry) {
 
 function resetFilterEntries() {
   const buyList = document.getElementById("buyList");
-  const boughtList = document.getElementById("boughList");
+  const boughtList = document.getElementById("boughtList");
   buyList.childNodes.forEach((li) => {
     li.classList.remove("invisible");
   });
