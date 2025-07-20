@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"os"
+	"path"
 
 	"github.com/shaardie/listinator/database"
 	"github.com/shaardie/listinator/server"
@@ -15,8 +16,11 @@ import (
 var frontendFS embed.FS
 
 func main() {
+	p := os.Getenv("LISTINATOR_DATABASE_DIR")
+	dbPath := path.Join(p, "listinator.db")
+
 	// init database
-	db, err := database.Init("./listinator.db")
+	db, err := database.Init(dbPath)
 	if err != nil {
 		panic(err)
 	}
