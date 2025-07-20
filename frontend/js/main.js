@@ -46,7 +46,7 @@ function createEntry(entry) {
   if (entry.Bought === true) {
     // Bought entry
     const button = document.createElement("button");
-    button.textContent = "Add";
+    button.textContent = "+";
     button.addEventListener("click", () =>
       updateEntry({
         ID: entry.ID,
