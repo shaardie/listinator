@@ -92,7 +92,7 @@ function createEntry(entry) {
   return li;
 }
 
-// Reset filtering the entries in the DOM
+// resetFilterEntries reset filtering the entries in the DOM
 function resetFilterEntries() {
   const buyList = document.getElementById("buyList");
   const boughtList = document.getElementById("boughtList");
@@ -104,7 +104,7 @@ function resetFilterEntries() {
   });
 }
 
-// Filter the entries in the DOM
+// filterEntries filters the entries in the DOM
 function filterEntries(filter) {
   filter = filter.toLowerCase();
   const buyList = document.getElementById("buyList");
