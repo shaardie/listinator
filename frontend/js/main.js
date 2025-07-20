@@ -52,7 +52,7 @@ function createEntry(entry) {
         ID: entry.ID,
         Name: entry.Name,
         Bought: false,
-        Number: "1",
+        Number: "",
       }),
     );
     div.appendChild(button);
@@ -83,7 +83,7 @@ function createEntry(entry) {
         ID: entry.ID,
         Name: entry.Name,
         Bought: true,
-        Number: "1",
+        Number: "",
       }),
     );
     div.appendChild(checkbox);
@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       method: "POST",
       body: JSON.stringify({
         Name: name,
-        Number: "1",
+        Number: "",
       }),
       headers: {
         "Content-Type": "application/json",
