@@ -61,6 +61,7 @@ function createEntry(entry) {
     const input = document.createElement("input");
     input.value = entry.Number;
     input.type = "text";
+    input.classList.add("liInput");
     input.addEventListener("change", (event) => {
       const li = event.currentTarget;
       const number = li.value;
@@ -125,8 +126,28 @@ function filterEntries(filter) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  // Get entries from server on start
+// userInput checks if the user is currently trying to change something.
+// This is probably pretty fragile.
+function userInput() {
+  // Check, if the user is searching for something.
+  if (document.getElementById("searchInput")?.value != "") {
+    return true;
+  }
+
+  // Check, if the user has currently the input of an entry selected.
+  if (document.activeElement?.classList.contains("liInput")) {
+    return true;
+  }
+  return false;
+}
+
+// updateEntriesFromServer fetches the entries from the server and updates the lists.
+// If there is currently a user action, it does nothing
+function updateEntriesFromServer() {
+  // do not update on user input (fail early)
+  if (userInput()) {
+    return;
+  }
   fetch("/api/v1/entries")
     .then((response) => {
       if (!response.ok) {
@@ -135,12 +156,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       return response.json();
     })
     .then((json) => {
+      // do not update on user input (fail late)
+      if (userInput()) {
+        return;
+      }
       json.forEach((entry) => updateEntryInDOM(entry));
     })
     .catch((error) => {
       console.log(error);
       alert("error reaching server, best way to fix this is to reload");
     });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Get entries from server on start
+  updateEntriesFromServer();
+
+  // Update entries every 5s
+  setInterval(updateEntriesFromServer, 5000);
 
   // on Enter in searchInput trigger button
   document
