@@ -12,7 +12,7 @@ import (
 func (s server) entryList() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		es := []database.Entry{}
-		if err := s.db.Order("updated_at desc").Order("bought asc").Find(&es).Error; err != nil {
+		if err := s.db.Order("updated_at asc").Order("bought asc").Find(&es).Error; err != nil {
 			return echo.ErrInternalServerError.SetInternal(fmt.Errorf("unable to get lists from database, %w", err))
 		}
 		return c.JSON(http.StatusOK, es)
@@ -22,7 +22,7 @@ func (s server) entryList() echo.HandlerFunc {
 func (s server) entryCreate() echo.HandlerFunc {
 	type input struct {
 		Name   string `json:"Name"`
-		Number uint   `json:"Number"`
+		Number string `json:"Number"`
 	}
 	return func(c echo.Context) error {
 		var i input
@@ -46,7 +46,7 @@ func (s server) entryUpdate() echo.HandlerFunc {
 	type input struct {
 		ID     uuid.UUID `param:"ID"`
 		Name   string    `json:"Name"`
-		Number uint      `json:"Number"`
+		Number string    `json:"Number"`
 		Bought bool      `json:"Bought"`
 	}
 	return func(c echo.Context) error {

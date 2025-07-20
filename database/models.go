@@ -25,7 +25,7 @@ type Entry struct {
 	Model
 
 	Name   string
-	Number uint
+	Number string
 
 	Bought bool
 }

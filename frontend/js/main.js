@@ -1,6 +1,6 @@
 // updateEntryinDOM removes a potential existing entry and creates a new one in the DOM
 function updateEntryInDOM(entry) {
-  const li = entry.Bought ? createBoughtEntry(entry) : createBuyEntry(entry);
+  const li = createEntry(entry);
   const list = entry.Bought
     ? document.getElementById("boughtList")
     : document.getElementById("buyList");
@@ -8,6 +8,7 @@ function updateEntryInDOM(entry) {
   list.prepend(li);
 }
 
+// updateEntry updates an entry on the backend and trigger an update in the DOM
 function updateEntry(entry) {
   fetch(`/api/v1/entries/${entry.ID}`, {
     method: "PUT",
@@ -33,7 +34,8 @@ function updateEntry(entry) {
     });
 }
 
-function createBoughtEntry(entry) {
+// createEntry creates a new li element with the entry in it
+function createEntry(entry) {
   const li = document.createElement("li");
   li.id = entry.ID;
   li.textContent = entry.Name;
@@ -41,65 +43,51 @@ function createBoughtEntry(entry) {
   const div = document.createElement("div");
   div.classList.add("entryAttributes");
 
-  const button = document.createElement("button");
-  button.textContent = "Add";
-  button.addEventListener("click", () =>
-    updateEntry({
-      ID: entry.ID,
-      Name: entry.Name,
-      Bought: false,
-      Number: 1,
-    }),
-  );
-  div.appendChild(button);
-
-  li.appendChild(div);
-  return li;
-}
-
-function createBuyEntry(entry) {
-  const li = document.createElement("li");
-  li.id = entry.ID;
-  li.textContent = entry.Name;
-
-  const div = document.createElement("div");
-  div.classList.add("entryAttributes");
-
-  const input = document.createElement("input");
-  input.value = entry.Number;
-  input.type = "text";
-  input.addEventListener("change", (event) => {
-    const li = event.currentTarget;
-    const number = Number(li.value);
-    // Reset on NaN
-    if (isNaN(number) || li.value === "") {
-      li.value = entry.Number;
-      return;
-    }
-    if (entry.Number === number) {
-      return;
-    }
-    updateEntry({
-      ID: entry.ID,
-      Name: entry.Name,
-      Bought: entry.Bought,
-      Number: number,
+  if (entry.Bought === true) {
+    // Bought entry
+    const button = document.createElement("button");
+    button.textContent = "Add";
+    button.addEventListener("click", () =>
+      updateEntry({
+        ID: entry.ID,
+        Name: entry.Name,
+        Bought: false,
+        Number: "1",
+      }),
+    );
+    div.appendChild(button);
+  } else {
+    // Buy entry
+    const input = document.createElement("input");
+    input.value = entry.Number;
+    input.type = "text";
+    input.addEventListener("change", (event) => {
+      const li = event.currentTarget;
+      const number = li.value;
+      if (entry.Number === number) {
+        return;
+      }
+      updateEntry({
+        ID: entry.ID,
+        Name: entry.Name,
+        Bought: entry.Bought,
+        Number: number,
+      });
     });
-  });
-  div.appendChild(input);
+    div.appendChild(input);
 
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.addEventListener("click", () =>
-    updateEntry({
-      ID: entry.ID,
-      Name: entry.Name,
-      Bought: true,
-      Number: 1,
-    }),
-  );
-  div.appendChild(checkbox);
-
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.addEventListener("click", () =>
+      updateEntry({
+        ID: entry.ID,
+        Name: entry.Name,
+        Bought: true,
+        Number: "1",
+      }),
+    );
+    div.appendChild(checkbox);
+  }
   li.appendChild(div);
   return li;
 }
@@ -137,8 +125,6 @@ function filterEntries(filter) {
   });
 }
 
-function setEntryNumber(entry, li) {}
-
 document.addEventListener("DOMContentLoaded", async () => {
   // Get entries from server on start
   fetch("/api/v1/entries")
@@ -175,13 +161,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("addButton").addEventListener("click", () => {
     const input = document.getElementById("searchInput");
     const name = input.value;
+    // ignore empty input
+    if (name === "") {
+      return;
+    }
     input.value = "";
     resetFilterEntries();
     fetch("/api/v1/entries", {
       method: "POST",
       body: JSON.stringify({
         Name: name,
-        Number: 1,
+        Number: "1",
       }),
       headers: {
         "Content-Type": "application/json",
