@@ -64,6 +64,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /**
+   * createContextmenuHanlder creates a context menu handler for an entry.
+   * @param {HTMLLIElement} li - The list item element that the context menu
+   * @param {Object} entry - The entry object to create a context menu for.
+   * @returns {Function} - A function that handles the context menu event.
+   */
+  function createContextmenuHandler(li, entry) {
+    return function (event) {
+      event.preventDefault();
+
+      // Delete existing context menu if it exists
+      document.getElementById("contextmenu")?.remove();
+
+      // Create a new context menu
+      const menu = document.createElement("div");
+      menu.id = "contextmenu";
+      menu.classList.add("context-menu");
+      menu.style.top = event.pageY + "px";
+      menu.style.left = event.pageX + "px";
+
+      // Delete Button
+      const deleteButton = document.createElement("div");
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", async () => {
+        try {
+          await apiFetch(`/api/v1/entries/${entry.ID}`, { method: "DELETE" });
+          document.getElementById(entry.ID)?.remove();
+          menu.remove();
+        } catch (error) {
+          showError(error);
+        }
+      });
+      menu.appendChild(deleteButton);
+
+      // Add context menu to the body
+      li.appendChild(menu);
+
+      // Close context menu when clicking outside
+      document.addEventListener("click", async (event) => {
+        if (!menu.contains(event.target)) {
+          menu.remove();
+          document.removeEventListener("click", menu);
+        }
+      });
+    };
+  }
+
+  /**
    * createEntry creates a list item for an entry.
    * @param {Object} entry - The entry object to create a list item for.
    * @returns {HTMLLIElement} - The created list item element.
@@ -72,7 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const li = document.createElement("li");
     li.id = entry.ID;
     li.textContent = entry.Name;
-
+    li.addEventListener("contextmenu", createContextmenuHandler(li, entry));
     const div = document.createElement("div");
     div.classList.add("entryAttributes");
 
