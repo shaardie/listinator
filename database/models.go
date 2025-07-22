@@ -14,11 +14,11 @@ type Model struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func (m *Model) BeforeCreate(tx *gorm.DB) (err error) {
+func (m *Model) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == uuid.Nil {
 		m.ID = uuid.New()
 	}
-	return
+	return nil
 }
 
 type Entry struct {
@@ -28,4 +28,25 @@ type Entry struct {
 	Number string
 
 	Bought bool
+
+	TypeID string
+	Type   Type `json:"-"`
+}
+
+func (e *Entry) BeforeCreate(tx *gorm.DB) error {
+	if err := e.Model.BeforeCreate(tx); err != nil {
+		return err
+	}
+	if e.ID == uuid.Nil {
+		e.ID = uuid.New()
+	}
+	if e.TypeID == "" {
+		e.TypeID = "unknown"
+	}
+	return nil
+}
+
+type Type struct {
+	Name string `gorm:"primaryKey"`
+	Icon string
 }

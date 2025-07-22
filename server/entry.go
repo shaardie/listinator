@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+
 	"github.com/shaardie/listinator/database"
 )
 
@@ -23,6 +24,8 @@ func (s server) entryCreate() echo.HandlerFunc {
 	type input struct {
 		Name   string `json:"Name"`
 		Number string `json:"Number"`
+		Bought bool   `json:"Bought"`
+		TypeID string `json:"TypeID"`
 	}
 	return func(c echo.Context) error {
 		var i input
@@ -33,6 +36,8 @@ func (s server) entryCreate() echo.HandlerFunc {
 		e := database.Entry{
 			Name:   i.Name,
 			Number: i.Number,
+			Bought: i.Bought,
+			TypeID: i.TypeID,
 		}
 		if err := s.db.Create(&e).Error; err != nil {
 			return echo.ErrInternalServerError.SetInternal(err)
@@ -48,6 +53,7 @@ func (s server) entryUpdate() echo.HandlerFunc {
 		Name   string    `json:"Name"`
 		Number string    `json:"Number"`
 		Bought bool      `json:"Bought"`
+		TypeID string    `json:"TypeID"`
 	}
 	return func(c echo.Context) error {
 		var i input
@@ -67,6 +73,7 @@ func (s server) entryUpdate() echo.HandlerFunc {
 		e.Name = i.Name
 		e.Number = i.Number
 		e.Bought = i.Bought
+		e.TypeID = i.TypeID
 
 		if err := s.db.Save(&e).Error; err != nil {
 			return echo.ErrInternalServerError.SetInternal(err)

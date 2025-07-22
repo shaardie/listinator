@@ -21,6 +21,34 @@ async function apiFetch(url, options = {}) {
   return response.json();
 }
 
+/**
+ * Cache for types to avoid frequent API calls.
+ */
+const typeCache = {
+  ttl: 60000, // 1min in milliseconds
+  timestamp: 0,
+  data: null,
+};
+
+/**
+ * getTypes fetches the types from the API and caches them.
+ * @returns {Promise<Array>} - A promise that resolves to the array of types.
+ */
+async function getTypes() {
+  const now = Date.now();
+  if (now - typeCache.timestamp < typeCache.ttl && typeCache.data != null) {
+    return typeCache.data;
+  }
+  try {
+    typeCache.data = await apiFetch("/api/v1/types");
+    typeCache.timestamp = now;
+    return typeCache.data;
+  } catch (error) {
+    showError(error);
+  }
+  return [];
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Dom Element
   const buyList = document.getElementById("buyList");
@@ -29,14 +57,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   const addButton = document.getElementById("addButton");
 
   /**
+   * createTypeSelect creates a select element with options for each type.
+   * @param {HTMLSelectElement} select - The select element to populate with options.
+   * @param {string} selected - The type that should be selected by default.
+   * @returns {Promise<void>} - A promise that resolves when the select is populated.
+   */
+  async function createTypeSelect(select, selected) {
+    const types = await getTypes();
+    types.forEach((type) => {
+      const option = document.createElement("option");
+      option.value = type.Name;
+      option.textContent = type.Icon;
+      if (selected === type.Name) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+  }
+
+  /**
    * updateEntryInDOM updates the entry in the DOM.
    * @param {Object} entry - The entry object to update.
    */
-  function updateEntryInDOM(entry) {
-    const li = createEntry(entry);
-    const list = entry.Bought ? boughtList : buyList;
+  async function updateEntryInDOM(entry) {
     document.getElementById(entry.ID)?.remove();
-    list.prepend(li);
+    const li = await createEntry(entry);
+    if (entry.Bought) {
+      boughtList.prepend(li);
+    } else {
+      buyList
+        .querySelector(`div[data-type-id="${entry.TypeID || "unknown"}"]`)
+        .after(li);
+    }
   }
 
   /**
@@ -52,12 +104,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           Name: entry.Name,
           Number: entry.Number,
           Bought: entry.Bought,
+          TypeID: entry.TypeID,
         }),
         headers: {
           "Content-Type": "application/json",
         },
       });
-      updateEntryInDOM(json);
+      await updateEntryInDOM(json);
     } catch (error) {
       showError(error);
     }
@@ -100,13 +153,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Add context menu to the body
       li.appendChild(menu);
 
-      // Close context menu when clicking outside
-      document.addEventListener("click", async (event) => {
+      const handleClickOutside = async (event) => {
         if (!menu.contains(event.target)) {
           menu.remove();
-          document.removeEventListener("click", menu);
+          document.removeEventListener("click", handleClickOutside);
         }
-      });
+      };
+      // Close context menu when clicking outside
+      document.addEventListener("click", handleClickOutside);
     };
   }
 
@@ -115,14 +169,36 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @param {Object} entry - The entry object to create a list item for.
    * @returns {HTMLLIElement} - The created list item element.
    */
-  function createEntry(entry) {
+  async function createEntry(entry) {
     const li = document.createElement("li");
     li.id = entry.ID;
-    li.textContent = entry.Name;
-    li.addEventListener("contextmenu", createContextmenuHandler(li, entry));
-    const div = document.createElement("div");
-    div.classList.add("entryAttributes");
 
+    // Set context menu handler
+    li.addEventListener("contextmenu", createContextmenuHandler(li, entry));
+
+    // Left side: Type and Name
+    const divLeft = document.createElement("div");
+    divLeft.classList.add("entryAttributes");
+    li.appendChild(divLeft);
+    const select = document.createElement("select");
+    await createTypeSelect(select, entry.TypeID);
+    select.addEventListener("change", () => {
+      updateEntry({
+        ID: entry.ID,
+        Name: entry.Name,
+        Number: entry.Number,
+        Bought: entry.Bought,
+        TypeID: select.value,
+      });
+    });
+    divLeft.appendChild(select);
+    const divName = document.createElement("div");
+    divName.textContent = entry.Name;
+    divLeft.appendChild(divName);
+
+    // Right side: Number input and Bought checkbox
+    const divRight = document.createElement("div");
+    divRight.classList.add("entryAttributes");
     if (entry.Bought === true) {
       // Bought entry
       const button = document.createElement("button");
@@ -132,18 +208,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           ID: entry.ID,
           Name: entry.Name,
           Bought: false,
-          Number: "",
+          Number: entry.Number,
+          TypeID: entry.TypeID,
         }),
       );
-      div.appendChild(button);
+      divRight.appendChild(button);
     } else {
       // Buy entry
       const input = document.createElement("input");
       input.value = entry.Number;
       input.type = "text";
       input.addEventListener("change", (event) => {
-        const li = event.currentTarget;
-        const number = li.value;
+        const input = event.currentTarget;
+        const number = input.value;
         if (entry.Number === number) {
           return;
         }
@@ -152,9 +229,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           Name: entry.Name,
           Bought: entry.Bought,
           Number: number,
+          TypeID: entry.TypeID,
         });
       });
-      div.appendChild(input);
+      divRight.appendChild(input);
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -163,12 +241,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           ID: entry.ID,
           Name: entry.Name,
           Bought: true,
-          Number: "",
+          Number: entry.Number,
+          TypeID: entry.TypeID,
         }),
       );
-      div.appendChild(checkbox);
+      divRight.appendChild(checkbox);
     }
-    li.appendChild(div);
+    li.appendChild(divRight);
     return li;
   }
 
@@ -179,11 +258,10 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @returns {void}
    */
   function resetFilterEntries() {
-    buyList.childNodes.forEach((li) => {
-      li.classList.remove("invisible");
-    });
-    boughtList.childNodes.forEach((li) => {
-      li.classList.remove("invisible");
+    [buyList, boughtList].forEach((list) => {
+      list.querySelectorAll("li").forEach((li) => {
+        li.classList.remove("invisible");
+      });
     });
   }
 
@@ -194,19 +272,12 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   function filterEntries() {
     const filter = searchInput.value.toLowerCase();
-    buyList.childNodes.forEach((li) => {
-      if (li.textContent.toLowerCase().includes(filter)) {
-        li.classList.remove("invisible");
-      } else {
-        li.classList.add("invisible");
-      }
-    });
-    boughtList.childNodes.forEach((li) => {
-      if (li.textContent.toLowerCase().includes(filter)) {
-        li.classList.remove("invisible");
-      } else {
-        li.classList.add("invisible");
-      }
+    [buyList, boughtList].forEach((list) => {
+      list.querySelectorAll("li").forEach((li) => {
+        li.textContent.toLowerCase().includes(filter)
+          ? li.classList.remove("invisible")
+          : li.classList.add("invisible");
+      });
     });
   }
 
@@ -234,7 +305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           "Content-Type": "application/json",
         },
       });
-      updateEntryInDOM(json);
+      await updateEntryInDOM(json);
     } catch (error) {
       showError(error);
     }
@@ -260,10 +331,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   // add entry on add button push
   addButton.addEventListener("click", addButtonClick);
 
+  // Add fake entries to the buyList
+  const types = await getTypes();
+  types.forEach((element) => {
+    const div = document.createElement("div");
+    div.dataset.typeId = element.Name;
+    div.classList.add("invisible");
+    buyList.appendChild(div);
+  });
+
   // Get entries from server on start
   try {
     const json = await apiFetch("/api/v1/entries");
-    json.forEach((entry) => updateEntryInDOM(entry));
+    for (const key in json) {
+      await updateEntryInDOM(json[key]);
+    }
   } catch (error) {
     showError(error);
   }

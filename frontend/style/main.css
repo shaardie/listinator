@@ -100,6 +100,11 @@ li:hover {
   gap: 8px;
 }
 
+select {
+  width: 54px;
+  height: 44px;
+}
+
 li [type="text"] {
   border: 0px;
   width: 88px;
