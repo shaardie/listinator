@@ -75,3 +75,26 @@ func (s server) entryUpdate() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, e)
 	}
 }
+
+func (s server) entryDelete() echo.HandlerFunc {
+	type input struct {
+		ID uuid.UUID `param:"ID"`
+	}
+	return func(c echo.Context) error {
+		var i input
+		if err := c.Bind(&i); err != nil {
+			return echo.ErrBadRequest.SetInternal(err)
+		}
+
+		e := database.Entry{
+			Model: database.Model{
+				ID: i.ID,
+			},
+		}
+		if err := s.db.Delete(&e).Error; err != nil {
+			// TODO: handle different errors
+			return echo.NotFoundHandler(c)
+		}
+		return c.JSON(http.StatusOK, e)
+	}
+}

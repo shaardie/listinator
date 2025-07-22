@@ -1,3 +1,37 @@
+:root {
+  --bg_h: #1d2021;
+  --bg: #282828;
+  --bg_s: #32302f;
+  --bg1: #3c3836;
+  --bg2: #504945;
+  --bg3: #665c54;
+  --bg4: #7c6f64;
+
+  --fg: #fbf1c7;
+  --fg1: #ebdbb2;
+  --fg2: #d5c4a1;
+  --fg3: #bdae93;
+  --fg4: #a89984;
+
+  --red: #fb4934;
+  --green: #b8bb26;
+  --yellow: #fabd2f;
+  --blue: #83a598;
+  --purple: #d3869b;
+  --aqua: #8ec07c;
+  --gray: #928374;
+  --orange: #fe8019;
+
+  --red-dim: #cc2412;
+  --green-dim: #98971a;
+  --yellow-dim: #d79921;
+  --blue-dim: #458588;
+  --purple-dim: #b16286;
+  --aqua-dim: #689d6a;
+  --gray-dim: #a89984;
+  --orange-dim: #d65d0e;
+}
+
 .invisible {
   display: none;
 }
@@ -9,8 +43,8 @@
 
 body {
   padding: 0;
-  background: #282828;
-  color: #ebdbb2;
+  background: var(--bg);
+  color: var(--fg);
   margin: 0;
 }
 
@@ -28,7 +62,7 @@ body {
   height: 44px;
   padding: 4px 8px;
   border-radius: 4px;
-  color: #282828;
+  color: var(--bg);
   border: 0px;
 }
 
@@ -57,7 +91,7 @@ li {
 }
 
 li:hover {
-  background: #1d2021;
+  background: var(--bg_s);
 }
 
 .entryAttributes {
@@ -70,7 +104,7 @@ li [type="text"] {
   border: 0px;
   width: 88px;
   height: 42px;
-  color: #282828;
+  color: var(--bg);
   text-align: right;
   border-radius: 4px;
 }
@@ -84,4 +118,22 @@ li [type="checkbox"] {
 li button {
   margin: 4px 3px 3px 3px;
   border: 0px;
+}
+
+.context-menu {
+  position: absolute;
+  border: 1px solid var(--fg);
+  padding: 0;
+  margin: 0;
+  z-index: 9999;
+  box-shadow: 2px 2px 2px var(--fg);
+  background: var(--bg);
+}
+
+.context-menu div {
+  padding: 8px 12px;
+}
+
+.context-menu div:hover {
+  background: var(--bg4);
 }
