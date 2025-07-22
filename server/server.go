@@ -20,4 +20,6 @@ func (s server) SetupRoutes(e *echo.Echo) {
 	e.POST("/api/v1/entries", s.entryCreate())
 	e.PUT("/api/v1/entries/:id", s.entryUpdate())
 	e.DELETE("/api/v1/entries/:id", s.entryDelete())
+
+	e.GET("/api/v1/types", s.typeList())
 }
