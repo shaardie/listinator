@@ -44,20 +44,23 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @param {Object} entry - The entry object to update.
    * @returns {Promise<void>} - A promise that resolves when the entry is updated.
    */
-  function updateEntry(entry) {
-    apiFetch(`/api/v1/entries/${entry.ID}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        Name: entry.Name,
-        Number: entry.Number,
-        Bought: entry.Bought,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((json) => updateEntryInDOM(json))
-      .catch((error) => showError(error));
+  async function updateEntry(entry) {
+    try {
+      const json = await apiFetch(`/api/v1/entries/${entry.ID}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          Name: entry.Name,
+          Number: entry.Number,
+          Bought: entry.Bought,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      updateEntryInDOM(json);
+    } catch (error) {
+      showError(error);
+    }
   }
 
   /**
@@ -165,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    * It retrieves the value from the search input, ignores empty input,
    * and sends a POST request to add a new entry.
    */
-  function addButtonClick() {
+  async function addButtonClick() {
     const name = searchInput.value;
     // ignore empty input
     if (name === "") {
@@ -173,18 +176,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     searchInput.value = "";
     resetFilterEntries();
-    apiFetch("/api/v1/entries", {
-      method: "POST",
-      body: JSON.stringify({
-        Name: name,
-        Number: "",
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((json) => updateEntryInDOM(json))
-      .catch((error) => showError(error));
+    try {
+      const json = await apiFetch("/api/v1/entries", {
+        method: "POST",
+        body: JSON.stringify({
+          Name: name,
+          Number: "",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      updateEntryInDOM(json);
+    } catch (error) {
+      showError(error);
+    }
   }
 
   /**
@@ -208,9 +214,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   addButton.addEventListener("click", addButtonClick);
 
   // Get entries from server on start
-  apiFetch("/api/v1/entries")
-    .then((json) => {
-      json.forEach((entry) => updateEntryInDOM(entry));
-    })
-    .catch((error) => showError(error));
+  try {
+    const json = await apiFetch("/api/v1/entries");
+    json.forEach((entry) => updateEntryInDOM(entry));
+  } catch (error) {
+    showError(error);
+  }
 });
