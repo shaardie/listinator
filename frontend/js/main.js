@@ -1,3 +1,26 @@
+/**
+ * Logs an error and show an generic alert to the user.
+ * @param {Error|any} error - error to log
+ */
+function showError(error) {
+  console.log(error);
+  alert("error reaching server, best way to fix this is probably to reload");
+}
+
+/**
+ * Fetches data from the API and returns the JSON response.
+ * @param {string} url - The URL to fetch data from.
+ * @param {Object} [options={}] - Optional fetch options.
+ * @returns {Promise<Object>} - A promise that resolves to the JSON response.
+ */
+async function apiFetch(url, options = {}) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`API Error, ${response.status}`);
+  }
+  return response.json();
+}
+
 // updateEntryinDOM removes a potential existing entry and creates a new one in the DOM
 function updateEntryInDOM(entry) {
   const li = createEntry(entry);
@@ -10,7 +33,7 @@ function updateEntryInDOM(entry) {
 
 // updateEntry updates an entry on the backend and trigger an update in the DOM
 function updateEntry(entry) {
-  fetch(`/api/v1/entries/${entry.ID}`, {
+  apiFetch(`/api/v1/entries/${entry.ID}`, {
     method: "PUT",
     body: JSON.stringify({
       Name: entry.Name,
@@ -21,17 +44,8 @@ function updateEntry(entry) {
       "Content-Type": "application/json",
     },
   })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`failed to sync with server, ${response.status}`);
-      }
-      return response.json();
-    })
     .then((json) => updateEntryInDOM(json))
-    .catch((error) => {
-      console.log(error);
-      alert("error reaching server, best way to fix this is to reload");
-    });
+    .catch((error) => showError(error));
 }
 
 // createEntry creates a new li element with the entry in it
@@ -127,20 +141,11 @@ function filterEntries(filter) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Get entries from server on start
-  fetch("/api/v1/entries")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`failed to sync with server, ${response.status}`);
-      }
-      return response.json();
-    })
+  apiFetch("/api/v1/entries")
     .then((json) => {
       json.forEach((entry) => updateEntryInDOM(entry));
     })
-    .catch((error) => {
-      console.log(error);
-      alert("error reaching server, best way to fix this is to reload");
-    });
+    .catch((error) => showError(error));
 
   // on Enter in searchInput trigger button
   document
@@ -167,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     input.value = "";
     resetFilterEntries();
-    fetch("/api/v1/entries", {
+    apiFetch("/api/v1/entries", {
       method: "POST",
       body: JSON.stringify({
         Name: name,
@@ -177,16 +182,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         "Content-Type": "application/json",
       },
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`failed to sync with server, ${response.status}`);
-        }
-        return response.json();
-      })
       .then((json) => updateEntryInDOM(json))
-      .catch((error) => {
-        console.log(error);
-        alert("error reaching server, best way to fix this is to reload");
-      });
+      .catch((error) => showError(error));
   });
 });
