@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#newListButton {
+  padding: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--orange);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+#newListButton:hover {
+  background: var(--orange-dim);
+}

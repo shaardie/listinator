@@ -15,7 +15,7 @@ func Init(dsn string) (*gorm.DB, error) {
 		return nil, fmt.Errorf("unable to open database, %w", err)
 	}
 
-	err = db.AutoMigrate(&Entry{}, &Type{})
+	err = db.AutoMigrate(&Entry{}, &Type{}, &List{})
 	if err != nil {
 		return nil, fmt.Errorf("unable to migrate database models, %w", err)
 	}

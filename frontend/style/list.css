@@ -1,0 +1,103 @@
+.header {
+  padding: 20px;
+  background: var(--orange);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.header input {
+  width: 90%;
+  height: 44px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--bg);
+  border: 0px;
+}
+
+.header button {
+  height: 44px;
+  width: 44px;
+  border-radius: 4px;
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+}
+
+button {
+  height: 44px;
+  width: 44px;
+  border-radius: 4px;
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+}
+
+ul {
+  /* no bullet points */
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+li {
+  padding: 2px 4px;
+  margin: 2px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li:hover {
+  background: var(--bg_s);
+}
+
+.entryAttributes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+select {
+  width: 54px;
+  height: 44px;
+}
+
+li [type="text"] {
+  border: 0px;
+  width: 88px;
+  height: 42px;
+  color: var(--bg);
+  text-align: right;
+  border-radius: 4px;
+}
+
+li [type="checkbox"] {
+  width: 44px;
+  height: 44px;
+  accent-color: #928374;
+}
+
+li button {
+  margin: 4px 3px 3px 3px;
+  border: 0px;
+}
+
+.context-menu {
+  position: absolute;
+  border: 1px solid var(--fg);
+  padding: 0;
+  margin: 0;
+  z-index: 9999;
+  box-shadow: 2px 2px 2px var(--fg);
+  background: var(--bg);
+}
+
+.context-menu div {
+  padding: 8px 12px;
+}
+
+.context-menu div:hover {
+  background: var(--bg4);
+}
