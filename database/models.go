@@ -21,6 +21,12 @@ func (m *Model) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+type List struct {
+	Model
+
+	Entries []Entry
+}
+
 type Entry struct {
 	Model
 
@@ -31,6 +37,8 @@ type Entry struct {
 
 	TypeID string
 	Type   Type `json:"-"`
+
+	ListID uuid.UUID
 }
 
 func (e *Entry) BeforeCreate(tx *gorm.DB) error {
