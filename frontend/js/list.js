@@ -1,25 +1,5 @@
-/**
- * Logs an error and show an generic alert to the user.
- * @param {Error|any} error - error to log
- */
-function showError(error) {
-  console.log(error);
-  alert("error reaching server, best way to fix this is probably to reload");
-}
-
-/**
- * Fetches data from the API and returns the JSON response.
- * @param {string} url - The URL to fetch data from.
- * @param {Object} [options={}] - Optional fetch options.
- * @returns {Promise<Object>} - A promise that resolves to the JSON response.
- */
-async function apiFetch(url, options = {}) {
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    throw new Error(`API Error, ${response.status}`);
-  }
-  return response.json();
-}
+import { showError } from "./utils/error.mjs";
+import { apiFetch } from "./api/api.mjs";
 
 /**
  * Cache for types to avoid frequent API calls.
@@ -55,6 +35,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const boughtList = document.getElementById("boughtList");
   const searchInput = document.getElementById("searchInput");
   const addButton = document.getElementById("addButton");
+  const shareButton = document.getElementById("share-button");
+
+  // ListID from URL
+  const url = new URL(window.location.href);
+  const listID = url.searchParams.get("ListID");
 
   /**
    * updateEntriesFromServer updates the lists with information from the
@@ -75,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Get entries from server
     try {
-      const json = await apiFetch("/api/v1/entries");
+      const json = await apiFetch(`/api/v1/entries?ListID=${listID}`);
       for (const key in json) {
         await updateEntryInDOM(json[key]);
       }
@@ -133,6 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           Number: entry.Number,
           Bought: entry.Bought,
           TypeID: entry.TypeID,
+          ListID: entry.ListID,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -217,6 +203,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         Number: entry.Number,
         Bought: entry.Bought,
         TypeID: select.value,
+        ListID: listID,
       });
     });
     divLeft.appendChild(select);
@@ -238,6 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           Bought: false,
           Number: entry.Number,
           TypeID: entry.TypeID,
+          ListID: listID,
         }),
       );
       divRight.appendChild(button);
@@ -258,6 +246,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           Bought: entry.Bought,
           Number: number,
           TypeID: entry.TypeID,
+          ListID: entry.ListID,
         });
       });
       divRight.appendChild(input);
@@ -271,6 +260,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           Bought: true,
           Number: entry.Number,
           TypeID: entry.TypeID,
+          ListID: entry.ListID,
         }),
       );
       divRight.appendChild(button);
@@ -327,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         method: "POST",
         body: JSON.stringify({
           Name: name,
-          Number: "",
+          ListID: listID,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -352,12 +342,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /**
+   * share shares the current URL. Either via share or via copy to clipboard.
+   * Support for different Browser and mobile are hard to test.
+   */
+  async function share() {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          url: window.location.href,
+        });
+        return;
+      }
+      await navigator.clipboard.writeText(window.location.href);
+      alert(
+        "Share is not supported. URL was copied to the Clipboard instead.",
+      );
+    } catch (error) {
+      showError(error, error);
+    }
+  }
+
   // on Enter in searchInput trigger button
   searchInput.addEventListener("keydown", searchInputKeydown);
   // trigger re-rendering of the list on search input changes
   searchInput.addEventListener("keyup", filterEntries);
   // add entry on add button push
   addButton.addEventListener("click", addButtonClick);
+  // Share List on share button
+  shareButton.addEventListener("click", share);
 
   // Add fake entries to the buyList
   const types = await getTypes();

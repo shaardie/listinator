@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,10 +12,22 @@ import (
 )
 
 func (s server) entryList() echo.HandlerFunc {
+	type input struct {
+		ListID string `query:"ListID"`
+	}
 	return func(c echo.Context) error {
+		var i input
+		if err := c.Bind(&i); err != nil {
+			return echo.ErrBadRequest.SetInternal(err)
+		}
+
+		if i.ListID == "" {
+			return echo.ErrBadRequest.SetInternal(errors.New("missing ListID"))
+		}
+
 		es := []database.Entry{}
-		if err := s.db.Order("updated_at asc").Order("bought asc").Find(&es).Error; err != nil {
-			return echo.ErrInternalServerError.SetInternal(fmt.Errorf("unable to get lists from database, %w", err))
+		if err := s.db.Where("list_id = ?", i.ListID).Order("updated_at asc").Order("bought asc").Find(&es).Error; err != nil {
+			return echo.ErrInternalServerError.SetInternal(fmt.Errorf("unable to get entries from database, %w", err))
 		}
 		return c.JSON(http.StatusOK, es)
 	}
@@ -22,10 +35,11 @@ func (s server) entryList() echo.HandlerFunc {
 
 func (s server) entryCreate() echo.HandlerFunc {
 	type input struct {
-		Name   string `json:"Name"`
-		Number string `json:"Number"`
-		Bought bool   `json:"Bought"`
-		TypeID string `json:"TypeID"`
+		Name   string    `json:"Name"`
+		Number string    `json:"Number"`
+		Bought bool      `json:"Bought"`
+		TypeID string    `json:"TypeID"`
+		ListID uuid.UUID `json:"ListID"`
 	}
 	return func(c echo.Context) error {
 		var i input
@@ -38,6 +52,7 @@ func (s server) entryCreate() echo.HandlerFunc {
 			Number: i.Number,
 			Bought: i.Bought,
 			TypeID: i.TypeID,
+			ListID: i.ListID,
 		}
 		if err := s.db.Create(&e).Error; err != nil {
 			return echo.ErrInternalServerError.SetInternal(err)
@@ -54,6 +69,7 @@ func (s server) entryUpdate() echo.HandlerFunc {
 		Number string    `json:"Number"`
 		Bought bool      `json:"Bought"`
 		TypeID string    `json:"TypeID"`
+		ListID uuid.UUID `json:"ListID"`
 	}
 	return func(c echo.Context) error {
 		var i input
@@ -74,6 +90,7 @@ func (s server) entryUpdate() echo.HandlerFunc {
 		e.Number = i.Number
 		e.Bought = i.Bought
 		e.TypeID = i.TypeID
+		e.ListID = i.ListID
 
 		if err := s.db.Save(&e).Error; err != nil {
 			return echo.ErrInternalServerError.SetInternal(err)

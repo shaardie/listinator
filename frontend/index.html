@@ -4,22 +4,16 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="style/main.css" />
-    <script src="js/main.js"></script>
+    <script type="module" src="js/index.js"></script>
   </head>
   <body>
     <header>
-      <input
-        id="searchInput"
-        type="search"
-        autocomplete="off"
-        placeholder="Search"
-      />
-      <button id="addButton">+</button>
+      <h1>Listinator</h1>
     </header>
     <main>
-      <ul id="buyList"></ul>
-      <hr />
-      <ul id="boughtList"></ul>
+      <div class="button-menu">
+        <button id="newListButton">New List as Guest</button>
+      </div>
     </main>
   </body>
 </html>

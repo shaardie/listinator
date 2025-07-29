@@ -46,7 +46,8 @@ hr {
 }
 
 header {
-  padding: 1em;
+  height: 2.5em;
+  padding: 0.5em;
   background: var(--color-primary);
   color: var(--color-text-inverted);
   display: flex;
@@ -77,9 +78,9 @@ header button {
 
 button {
   height: 2.5em;
-  width: 2.5em;
+  min-width: 2.5em;
   border-radius: var(--border-radius);
-  padding: 0em;
+  padding: 0em 1em;
   margin: 0em;
   border: 0em;
   background: var(--color-accent);
@@ -154,4 +155,21 @@ li input {
 .context-menu div:hover {
   background: var(--color-surface-hover);
   cursor: pointer;
+}
+
+.button-menu {
+  background: var(--color-surface);
+  min-height: calc(100svh - 3.5em); /* minus header and padding */
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+
+#share-button {
+  background: transparent;
+  min-width: 0em;
+  margin: 0em;
+  padding: 0em;
 }
