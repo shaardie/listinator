@@ -4,18 +4,14 @@ A simple web-based list management application perfect for shopping lists, to-do
 
 ## Features
 
-- **Web Interface**: Clean, responsive design that works on desktop and mobile
-- **Item Management**: Add, search, and organize list items
-- **Status Tracking**: Mark items as bought/completed with visual indicators  
-- **Item Categories**: Organize items by type with custom icons
-- **Search Functionality**: Quickly find items in your lists
-- **Persistent Storage**: SQLite database for reliable data storage
-- **Docker Ready**: Easy deployment with Docker and docker-compose
+- Web interface for managing shopping lists and to-do lists
+- Mark items as bought/completed
+- Search functionality
+- Docker support
 
 ## Requirements
 
 - Go 1.24.3 or later
-- SQLite3 (automatically handled by Go dependencies)
 
 ## Installation
 
@@ -55,14 +51,17 @@ cd listinator
 docker-compose up
 ```
 
+This will:
+- Build and start the application
+- Map port 8080 to your host  
+- Create a persistent volume for data storage in `./data`
+
+You can also run with Docker directly:
+```bash
+docker run -p 8080:8080 -v $(pwd)/data:/var/lib/listinator -e LISTINATOR_DATABASE_DIR=/var/lib/listinator ghcr.io/hacky-day/listinator:latest
+```
+
 The application will be available at http://localhost:8080
-
-## Usage
-
-1. **Adding Items**: Click the "+" button or use the search field to add new items to your list
-2. **Searching**: Type in the search box to filter items by name
-3. **Marking Complete**: Click on items to mark them as bought/completed
-4. **Organization**: Items are automatically separated into "to buy" and "bought" sections
 
 ## Development
 
@@ -94,42 +93,11 @@ export LISTINATOR_DATABASE_DIR=./data
 go run .
 ```
 
-### API Endpoints
-
-The application provides a REST API for programmatic access:
-
-- `GET /api/v1/entries` - List all entries
-- `POST /api/v1/entries` - Create a new entry
-- `PUT /api/v1/entries/:id` - Update an entry
-- `DELETE /api/v1/entries/:id` - Delete an entry
-- `GET /api/v1/types` - List all item types
-
 ## Configuration
 
 The application uses the following environment variables:
 
 - `LISTINATOR_DATABASE_DIR` - Directory where the SQLite database file will be stored (required)
-
-## Docker Deployment
-
-The project includes Docker support for easy deployment:
-
-### Using Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-This will:
-- Pull the latest image from GitHub Container Registry
-- Map port 8080 to your host
-- Create a persistent volume for data storage in `./data`
-
-### Using Docker directly
-
-```bash
-docker run -p 8080:8080 -v $(pwd)/data:/var/lib/listinator -e LISTINATOR_DATABASE_DIR=/var/lib/listinator ghcr.io/hacky-day/listinator:latest
-```
 
 ## License
 
