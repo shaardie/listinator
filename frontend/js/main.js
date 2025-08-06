@@ -234,9 +234,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       divRight.appendChild(input);
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.addEventListener("click", () =>
+      const button = document.createElement("button");
+      button.textContent = "✓";
+      button.addEventListener("click", () =>
         updateEntry({
           ID: entry.ID,
           Name: entry.Name,
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           TypeID: entry.TypeID,
         }),
       );
-      divRight.appendChild(checkbox);
+      divRight.appendChild(button);
     }
     li.appendChild(divRight);
     return li;

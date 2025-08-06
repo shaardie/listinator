@@ -1,35 +1,27 @@
 :root {
-  --bg_h: #1d2021;
-  --bg: #282828;
-  --bg_s: #32302f;
-  --bg1: #3c3836;
-  --bg2: #504945;
-  --bg3: #665c54;
-  --bg4: #7c6f64;
+  /* Primary Colors */
+  --color-primary: #4f46e5;
+  --color-primary-light: #6366f1;
+  --color-primary-dark: #4338ca;
 
-  --fg: #fbf1c7;
-  --fg1: #ebdbb2;
-  --fg2: #d5c4a1;
-  --fg3: #bdae93;
-  --fg4: #a89984;
+  /* Accent / Secondary */
+  --color-accent: #10b981;
+  --color-accent-light: #34d399;
+  --color-accent-dark: #059669;
 
-  --red: #fb4934;
-  --green: #b8bb26;
-  --yellow: #fabd2f;
-  --blue: #83a598;
-  --purple: #d3869b;
-  --aqua: #8ec07c;
-  --gray: #928374;
-  --orange: #fe8019;
+  /* Neutral / Base */
+  --color-background: #f9fafb;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f3f4f6;
+  --color-border: #e5e7eb;
+  --color-muted: #9ca3af;
 
-  --red-dim: #cc2412;
-  --green-dim: #98971a;
-  --yellow-dim: #d79921;
-  --blue-dim: #458588;
-  --purple-dim: #b16286;
-  --aqua-dim: #689d6a;
-  --gray-dim: #a89984;
-  --orange-dim: #d65d0e;
+  /* Text */
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-text-inverted: #ffffff;
+
+  --border-radius: 0.75em;
 }
 
 .invisible {
@@ -37,108 +29,129 @@
 }
 
 * {
-  font-size: 18px;
+  font-size: 16px;
   font-family: sans;
 }
 
 body {
-  padding: 0;
-  background: var(--bg);
-  color: var(--fg);
-  margin: 0;
+  padding: 0em;
+  margin: 0em;
+  background: var(--color-background);
+  color: var(--color-text);
 }
 
-.search {
-  padding: 20px;
-  background: #d79921;
+hr {
+  color: var(--color-primary);
+  margin: 0.5em 1em;
+}
+
+header {
+  padding: 1em;
+  background: var(--color-primary);
+  color: var(--color-text-inverted);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 0.5em;
 }
 
-.search input {
-  width: 90%;
-  height: 44px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: var(--bg);
-  border: 0px;
+header input {
+  flex-grow: 1; /* max width possible */
+}
+
+input {
+  height: 2.5em;
+  box-sizing: border-box;
+  padding: 0.1em 0.2em;
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+  border: 0.1em solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+header button {
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 
 button {
-  height: 44px;
-  width: 44px;
-  border-radius: 4px;
-  padding: 0px;
-  margin: 0px;
-  border: 0px;
+  height: 2.5em;
+  width: 2.5em;
+  border-radius: var(--border-radius);
+  padding: 0em;
+  margin: 0em;
+  border: 0em;
+  background: var(--color-accent);
+  color: var(--color-text-inverted);
 }
 
 ul {
   /* no bullet points */
   list-style: none;
-  padding: 0px;
-  margin: 0px;
+  padding: 0em;
+  margin: 0em;
 }
 
 li {
-  padding: 2px 4px;
-  margin: 2px 4px;
+  padding: 0.1em 0.2em;
+  margin: 0.2em 0.8em;
+  border-radius: var(--border-radius);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--color-surface);
 }
 
-li:hover {
-  background: var(--bg_s);
+@media (hover: hover) and (pointer: fine) {
+  li:hover {
+    background: var(--color-surface-hover);
+  }
+  button:hover {
+    background: var(--color-accent-dark);
+    cursor: pointer;
+  }
+  header button:hover {
+    background: var(--color-surface-hover);
+  }
 }
 
 .entryAttributes {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5em;
 }
 
 select {
-  width: 54px;
-  height: 44px;
+  width: 3em;
+  height: 2.5em;
+  background: var(--color-surface);
+  border: 0.1em solid var(--color-border);
+  border-radius: var(--border-radius);
 }
 
-li [type="text"] {
-  border: 0px;
-  width: 88px;
-  height: 42px;
-  color: var(--bg);
+li input {
+  width: 6em;
+  border: 0.1em solid var(--color-accent);
   text-align: right;
-  border-radius: 4px;
-}
-
-li [type="checkbox"] {
-  width: 44px;
-  height: 44px;
-  accent-color: #928374;
-}
-
-li button {
-  margin: 4px 3px 3px 3px;
-  border: 0px;
 }
 
 .context-menu {
   position: absolute;
-  border: 1px solid var(--fg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
   padding: 0;
   margin: 0;
   z-index: 9999;
-  box-shadow: 2px 2px 2px var(--fg);
-  background: var(--bg);
+  box-shadow: 0.1em 0.1em 0.1em var(--color-border);
+  background: var(--color-surface);
 }
 
 .context-menu div {
-  padding: 8px 12px;
+  padding: 0.5em 0.8em;
 }
 
 .context-menu div:hover {
-  background: var(--bg4);
+  background: var(--color-surface-hover);
+  cursor: pointer;
 }
