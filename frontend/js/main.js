@@ -57,6 +57,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   const addButton = document.getElementById("addButton");
 
   /**
+   * updateEntriesFromServer updates the lists with information from the
+   * server, if there is currently no user activity, which is hard to
+   * determine.
+   */
+  async function updateEntriesFromServer() {
+    // Do nothing, if search bar is not empty
+    if (searchInput.value != "") {
+      return;
+    }
+
+    // Do nothing, if active tag is something to select or write to.
+    const activeTag = document.activeElement?.tagName.toLowerCase();
+    if (activeTag === "input" || activeTag == "select") {
+      return;
+    }
+
+    // Get entries from server
+    try {
+      const json = await apiFetch("/api/v1/entries");
+      for (const key in json) {
+        await updateEntryInDOM(json[key]);
+      }
+    } catch (error) {
+      showError(error);
+    }
+  }
+
+  /**
    * createTypeSelect creates a select element with options for each type.
    * @param {HTMLSelectElement} select - The select element to populate with options.
    * @param {string} selected - The type that should be selected by default.
@@ -340,13 +368,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     buyList.appendChild(div);
   });
 
-  // Get entries from server on start
-  try {
-    const json = await apiFetch("/api/v1/entries");
-    for (const key in json) {
-      await updateEntryInDOM(json[key]);
-    }
-  } catch (error) {
-    showError(error);
-  }
+  // Update at the start
+  updateEntriesFromServer();
+
+  // Update every 5s
+  setInterval(updateEntriesFromServer, 5000);
 });
