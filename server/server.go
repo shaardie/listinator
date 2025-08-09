@@ -27,4 +27,7 @@ func (s server) SetupRoutes(e *echo.Echo) {
 
 	// types
 	e.GET("/api/v1/types", s.typeList())
+
+	// Login, Logout and stuff
+	e.POST("/api/v1/session", s.sessionCreate())
 }

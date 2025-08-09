@@ -21,6 +21,14 @@ func (m *Model) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+type User struct {
+	Model
+
+	Name         string `gorm:"unique;not null"`
+	PasswordHash string
+	IsAdmin      bool
+}
+
 type List struct {
 	Model
 
